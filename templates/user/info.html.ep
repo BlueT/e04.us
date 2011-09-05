@@ -1,0 +1,9 @@
+% layout 'default';
+	<b><%= $message %></b><br />
+<!-- Welcome! You're now known as <%= $user %>.<br /> -->
+Welcome! You're now known as <%= session 'name' or "Anonymous"%>.<br />
+<% if (session 'name') { %>
+	<a href="<%= url_for 'logout' %>">Logout <%= session 'name' %></a>
+<% } else { %>
+	<a href="<%= url_for 'login' %>">Login</a>
+<% } %>

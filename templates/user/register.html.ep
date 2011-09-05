@@ -1,0 +1,22 @@
+% layout 'default';
+"<%= $self->req->url->path || '/' %>"
+<h2><%= $message %></h2>
+<a href="<%== url_for %>">click here</a>
+<form method="post" action="<%= url_for %>" enctype="multipart/form-data">
+	<% if (param 'name') { %>
+		<b>Register Failed, please check your information.</b><br />
+	<% } %>
+		
+	Name:<br />
+	<input type="text" name="name" value="<%= param 'name' %>" /><br />
+	Password:<br />
+	<input type="text" name="pass" value="<%= param 'pass' %>" /><br />
+	Email:<br />
+	<input type="text" name="email" value="<%= param 'email' %>" /><br />
+	Phone Number:<br />
+	<input type="text" name="phone" value="<%= param 'phone' %>" /><br />
+	Avatar:<br />
+	<input type="file" name="avatar" /><br />
+	
+	<input type="submit" value="Register"/>
+</form>

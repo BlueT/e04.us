@@ -1,0 +1,16 @@
+% layout 'default';
+% title 'Login Page';
+<% if ($message) { %>
+	<h2><%= $message %></h2>
+<% } %>
+Don't have a account yet? <a href="<%= url_for 'register' %>">Register Now!</a>
+<form action="<%== url_for %>">
+	<% if (param 'name') { %>
+		<b>Wrong name or password, please try again.</b><br />
+	<% } %>
+	Name:<br />
+	<input type="text" name="name" value="<%= param 'name' %>" /><br />
+	Password:<br />
+	<input type="text" name="pass" value="<%= param 'pass' %>" /><br />
+	<input type="submit" value="Login"/>
+</form>

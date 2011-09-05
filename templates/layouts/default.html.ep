@@ -1,0 +1,16 @@
+<!doctype html><html>
+    <head>
+    	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" >
+    	<title>WonderPhoto</title>
+    </head>
+    <body>
+    <a href="<%= url_for 'index' %>">首頁</a>-
+    <a href="<%= url_for 'user/edit' %>">修改個人資料</a>-
+    <a href="<%= url_for 'pic_edit' %>">編輯圖片</a>-
+    <a href="<%= url_for 'works_list' %>">作品列表</a>-
+    <a href="<%= url_for 'order_list' %>">訂單列表</a>-
+    <a href="<%= url_for 'my_chart' %>">購物車</a><br />
+    <hr />
+    <%== content %>
+    </body>
+</html>

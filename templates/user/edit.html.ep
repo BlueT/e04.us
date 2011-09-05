@@ -1,0 +1,16 @@
+% layout 'default';
+"<%= $self->req->url->path || '/' %>"
+
+<% if ($message) { %>
+	<h2><%= $message %></h2>
+<% } %>
+
+<a href="<%== url_for %>">click here</a>
+
+<form method="post" action="<%= url_for %>" enctype="multipart/form-data">
+	<% for (sort keys %$userinfo) { %>
+		<%= uc($_) %>: <input type="text" name="<%= $_ %>" value="<%= $userinfo->{$_} %>" /><br />
+	<% } %>
+	<input type="submit" value="Update"/>
+</form>
+
