@@ -1,4 +1,4 @@
-package ReFerTo::Card;
+package Conifer::Card;
 use Mojo::Base 'Mojolicious::Controller';
 
 # This action will render a template

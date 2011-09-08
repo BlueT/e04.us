@@ -1,21 +1,37 @@
-package ReFerTo;
+package Conifer;
 use Mojo::Base 'Mojolicious';
-
 use Data::Dumper;
 use Mojo::ByteStream 'b';
 use Image::Size;
+use Redis;
+#~ use Text::Xslate;
+#~ use namespace::clean;
 
+my %redis_server = (server => '127.0.0.1:6379');
 my $secret = '';
+
+__PACKAGE__->attr('redis');
+
+__PACKAGE__->redis( Redis->new(%redis_server) );
+print Dumper __PACKAGE__->redis;
+#~ $self->redis( Redis->new(%redis_server) );
+#~ print Dumper $self->redis;
 
 # This method will run once at server start
 sub startup {
 	my $self = shift;
-
+	
+	
+	
+	#####
+	# Routes
+	#####
+	
 	# Documentation browser under "/perldoc" (this plugin requires Perl 5.10)
-	$self->plugin('PODRenderer');
+	#~ $self->plugin('PODRenderer');
 	
 	# use Xslate for page rendering
-	$self->plugin('xslate_renderer');
+	#~ $self->plugin('xslate_renderer');
 	
 	$self->secret($secret);
 

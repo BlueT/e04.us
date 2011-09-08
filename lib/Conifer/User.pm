@@ -1,22 +1,29 @@
-package ReFerTo::User;
+package Conifer::User;
+use Conifer;
 use Mojo::Base 'Mojolicious::Controller';
 use Time::HiRes 'time', 'gettimeofday';
 use Data::Dumper;
+use Digest::SHA1 qw(sha1_hex sha1_base64);
+use Digest::MD5 qw(md5 md5_hex md5_base64);
+
+$|=1;
 
 # This action will render a template
 sub login {
-	my $self = shift;
+	# $user_passwd eq md5_base64(sha1_hex($pass))
 	
-	return $self->render(message => 'Please Login.');	# FIXME
+	my $self = shift;
 
 	my $user = $self->session('name');
-	if (&check_user( $user )->{"login"}) {
+	if ($user) {
 		$self->flash(message => 'You had logged in already!');
 		$self->redirect_to('index');
 	}
 	
 	my $name = $self->param('name') || '';
 	my $pass = $self->param('pass') || '';
+	
+	return $self->render(message => 'Please Login.') unless ( $name and $pass );
 	
 	# FIXME:
 	# check in DB, set to memcached
@@ -35,7 +42,14 @@ sub login {
 	#~ print "USER ID: $user_id\n";
 	
 	#~ my $user_id = int rand(10);	# FIXME
-	my $user_id;	# FIXME
+	
+	my $user_id;
+	my $name_sha1 = sha1_hex($name);
+	my $user_passwd = Conifer->redis->get("user:$name_sha1:passwd");
+	if ( $user_passwd and $user_passwd eq md5_base64(sha1_hex($pass)) ) {
+		$user_id = Conifer->redis->get("user:$name_sha1:id");
+	}
+	
 	
 	return $self->render(message => 'Please Login.') unless $user_id;
 	
@@ -57,31 +71,27 @@ sub login {
 
 
 sub register {
+	# ('name', 'pass', 'email', 'phone')
+	# ('realname', 'postal_code', 'country', 'state', 'city', 'district', 'address')
+	
 	my $self = shift;
 
 	my $user = $self->session('name');
-	if (&check_user( $user )->{"login"}) {
+	if ($user) {
 		$self->flash(message => 'You are a registered user!');
 		$self->redirect_to('index');
 	}
 	
 	my $name = $self->param('name') || '';
+	return $self->render(message => 'Please fill your informations here.') unless ($name);
+	
 	my $pass = $self->param('pass') || '';
 	my $email = $self->param('email') || '';
 	my $phone = $self->param('phone') || '';
-	my $realname = $self->param('user_name') || '';
-	my $postal_code = $self->param('postal_code') || '';
-	my $country = $self->param('country') || '';
-	my $state = $self->param('state') || '';
-	my $city = $self->param('city') || '';
-	my $district = $self->param('district') || '';
-	my $address = $self->param('address') || '';
 	
-	return $self->render(message => 'Please fill your informations here.') unless ($name);
-	
-	# check if all columes are valid
+	# check if basic columes are valid
 	return $self->render(message => 'Not enough information.')
-		unless ($name && $pass && $email && $phone);
+		unless ($pass && $email && $phone);
 	
 	# FIXME: check in DB
 	# check if the user's exist already
@@ -96,9 +106,16 @@ sub register {
 	#~ my $exists = ${$ref}[0] if $ref;
 	#~ $sth->finish();
 	
-	my $exists;	# FIXME
+	
+	print "User/Redis: ".Dumper(Conifer->redis)."\n";
+	
+	my $name_sha1 = sha1_hex($name);
+	print "name_sha1: $name_sha1\n";
+	my $user_id = Conifer->redis->get("user:$name_sha1:id");
+	print "Check user_id: $user_id\n";
+	
 	return $self->render(message => 'User Exist, please choose another username.')
-		if $name eq $exists;
+		if $user_id;
 	
 	#~ $dbh->do("
 		#~ insert into T_user
@@ -117,10 +134,26 @@ sub register {
 	#~ 
 	#~ my $user_id = $dbh->{'mysql_insertid'};
 	
-	my $user_id = int rand(10);	# FIXME
+	my $user_next_id = Conifer->redis->incr("user:next.id");
+	print Dumper(Conifer->redis->incr("user:next.id"))."\n";;
+	print "next.id: $user_next_id\n";
+	Conifer->redis->setnx("user:$name_sha1:id" => $user_next_id)?
+		$user_id = $user_next_id
+	:
+		$user_id = Conifer->redis->get("user:$name_sha1:id")
+	;
+	
+	Conifer->redis->set( "user:$name_sha1:passwd" => md5_base64(sha1_hex($pass)) );
+	# ('realname', 'postal_code', 'country', 'state', 'city', 'district', 'address')
+	for (qw[realname postal_code country state city district address]) {
+		Conifer->redis->setnx("user:$name_sha1:$_" => $self->param($_)) if $self->param($_);
+	}
+	
 	
 	print "USER ID: $user_id\n";
 	
+	my $login_time = &time_and_rand();
+	$self->session(name => "$name", session => "$login_time", user_id => $user_id,);
 	$self->flash(message => 'Thanks for Register!');
 	$self->redirect_to('index');
 	
@@ -149,14 +182,15 @@ sub info {
 	#~ my $user = $self->session('name');
 	#~ $user = &check_user( $user )->{"login"} ? $user : 'Anonymous' ;
 	
-	my $sth = $dbh->prepare("
-		SELECT *
-		FROM T_user
-		WHERE user_code='$user';
-	");
-	$sth->execute();
-	my %userinfo = %{$sth->fetchrow_hashref()};
-	$sth->finish();	
+	#~ my $sth = $dbh->prepare("
+		#~ SELECT *
+		#~ FROM T_user
+		#~ WHERE user_code='$user';
+	#~ ");
+	#~ $sth->execute();
+	#~ my %userinfo = %{$sth->fetchrow_hashref()};
+	#~ $sth->finish();	
+	my %userinfo;	# FIXME
 	
 	delete $userinfo{"admin"};
 	delete $userinfo{"user_code"};

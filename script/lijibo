@@ -16,7 +16,7 @@ Please visit http://mojolicio.us for detailed installation instructions.
 EOF
 
 # Application
-$ENV{MOJO_APP} ||= 'ReFerTo';
+$ENV{MOJO_APP} ||= 'Conifer';
 
 # Start commands
 Mojolicious::Commands->start;
