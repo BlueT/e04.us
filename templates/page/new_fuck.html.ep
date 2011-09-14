@@ -2,13 +2,13 @@
 
 <!-- <h2><%= $motd %></h2> -->
 
-<form method="post" action="<%= url_for /new/fuck %>" enctype="multipart/form-data">
+<form method="post" action="/new/fuck" enctype="multipart/form-data">
 	
-	<input type="text" name="name" value="我" />
+	<input type="text" name="who" value="我" />
 	想幹勦
-	<input type="text" name="pass" value="你" /><br />
+	<input type="text" name="whom" value="你" />
 	說：<br />
-	<input type="text" name="email" value="[消音]" /><br />
+	<input type="text" name="fucks" value="[消音]" /><br />
 	
 	<input type="submit" value="我幹，故我在"/>
 </form>

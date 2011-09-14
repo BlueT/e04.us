@@ -1,9 +1,10 @@
 package Conifer::Fuck;
+use utf8;
 use Conifer;
 use Mojo::Base 'Mojolicious::Controller';
 use Time::HiRes 'time', 'gettimeofday';
 use Data::Dumper;
-use Digest::SHA1 qw(sha1_hex sha1_base64);
+#~ use Digest::SHA1 qw(sha1_hex sha1_base64);
 use Digest::MD5 qw(md5 md5_hex md5_base64);
 use MIME::Base64;
 
@@ -15,15 +16,19 @@ my %hash_table;
 
 sub create {
 	my $self = shift;
-	my ($who, $whom, $fucks) = ($self->param('who'), $self->param('whom'), $self->param('fucks'));
+	my ($who, $whom, $fucks) = ($self->req->param('who'), $self->req->param('whom'), $self->req->param('fucks'));
+	
+	print Dumper($self->req->param('who'));
+	
+	print "WHO: $who\nWHOM: $whom\nFUCKS: $fucks\n";
 	
 	my ($id, $hash) = &_key_gen;
 	
-	Conifer->redis->set("fucks:$who:$whom:$id:fucks");
+	Conifer->redis->set("fucks:$who:$whom:$id:fucks" => $fucks);
 	$self->redirect_to("/$who/fuck/$whom:$hash");
 }
 
-sub who_fuck_who {
+sub who_fuck_whom {
 	# /(.who)/fuck/(.whom)
 	my $self = shift;
 	my $who = $self->param('who') || 'anon';
@@ -33,12 +38,16 @@ sub who_fuck_who {
 	my $id = &_key_lookup($hash);
 	
 	my $fucks = Conifer->redis->get("fucks:$who:$whom:$id:fucks");
-	$self->render(who => "$who", whom => "$whom", fucks => "$fucks");
+	
+	my $motd = "A Fuck A Day, keeps the doctor away.";
+	
+	$self->render(who => "$who", whom => "$whom", fucks => "$fucks", motd => "$motd");
 }
 
 sub comment {
 	my $self = shift;
 	my $hash = shift;
+	my $id = _key_lookup($hash);
 	my $list = Conifer->redis->get("comments:$id:list");
 }
 
@@ -48,8 +57,12 @@ sub rank {
 
 sub _key_gen {
 	# new id, hash
-	my $counter = Conifer->redis->incr("fucks:counter");
+	my $counter = Conifer->redis->incr('fucks:counter');
 	my $hash = encode_base64($counter);
+	#~ print "HASH: ".$hash."!\n";
+	chomp $hash;
+	$hash =~ s/=//g;
+	#~ print "FILTERED HASH: ".$hash."!\n";
 	
 	return($counter, $hash);
 }
@@ -58,7 +71,6 @@ sub _key_lookup {
 	# hash -> id
 	my $hash = shift;
 	my $id = decode_base64($hash);
-	$id =~ s/=//g;
 	
 	return $id;
 }

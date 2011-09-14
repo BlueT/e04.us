@@ -1,4 +1,5 @@
 <!doctype html>
+<% use utf8; %>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" >
@@ -24,8 +25,7 @@
 		<h1>
 			e04.us <font color="red"><big>幹</big></font><font color="blue">勦網</font>
 		</h1>
-		<SPAN CLASS="slogan">幹.我們|我們.幹</SPAN> - <SPAN CLASS="motd"><%= $motd %></SPAN>
-		<hr />
+		<SPAN CLASS="slogan">幹.我們|我們.幹</SPAN> - <a href='/fuck'><SPAN CLASS="motd"><%= $motd %></SPAN></a>
                 
                 <!--
 		<a href="<%= url_for 'index' %>">首頁</a>-

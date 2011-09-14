@@ -1,4 +1,5 @@
 package Conifer;
+use utf8;
 use Mojo::Base 'Mojolicious';
 use Data::Dumper;
 use Mojo::ByteStream 'b';
@@ -13,8 +14,7 @@ __PACKAGE__->attr('redis');
 
 __PACKAGE__->redis( Redis->new(%redis_server) );
 print Dumper __PACKAGE__->redis;
-$self->redis( Redis->new(%redis_server) );
-#~ print Dumper $self->redis;
+
 
 # This method will run once at server start
 sub startup {
@@ -46,10 +46,11 @@ sub startup {
 	# Normal route to controller
 	#~ $r->route('/welcome/(.word)')->to('example#welcome');
 	
+	$r->post('/new/fuck')->to('fuck#create');
 	#~ $r->get('/(.who)/fuck(.words)')->to('fuck#who_fuck');
 	$r->get('/(.who)/fuck/(.whom)')->to('fuck#who_fuck_whom');
 	#~ $r->get('/fuck/(.whom)')->to('fuck#fuck_whom');
-	$r->post('/new/fuck')->to('fuck#create');
+	
 	
 	
 }

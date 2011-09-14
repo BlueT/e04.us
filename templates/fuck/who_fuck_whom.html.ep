@@ -1,0 +1,3 @@
+% layout 'default';
+
+<%= $who %>對<%= $whom %>幹勦：<%= $fucks %>！

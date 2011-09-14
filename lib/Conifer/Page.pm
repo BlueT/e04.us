@@ -1,4 +1,5 @@
 package Conifer::Page;
+use utf8;
 use Mojo::Base 'Mojolicious::Controller';
 use Data::Dumper;
 
@@ -6,7 +7,7 @@ use Data::Dumper;
 sub index {
 	$|=1;
 	my $self = shift;
-	$self->redirect_to('http://'.$self->req->url->base->host);
+	#~ $self->redirect_to('http://'.$self->req->url->base->host);
 	#~ my $user = $self->session('name');
 	#~ $user = &check_user( $user )->{"login"} ? $user : 'Anonymous' ;
 	
@@ -18,7 +19,7 @@ sub index {
 	#~ print Dumper($self->req->url->base->host);
 	
 	#~ $self->render(user => $self->req->url->host);
-	#~ $self->render(message => "Welcome to Re.fer.To!");
+	$self->render(motd => "你今天幹勦了嗎？ / Have you Fuck^H^H^Horked somebody today?");
 	
 }
 
