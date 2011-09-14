@@ -2,7 +2,6 @@ package Conifer;
 use Mojo::Base 'Mojolicious';
 use Data::Dumper;
 use Mojo::ByteStream 'b';
-use Image::Size;
 use Redis;
 #~ use Text::Xslate;
 #~ use namespace::clean;
@@ -14,7 +13,7 @@ __PACKAGE__->attr('redis');
 
 __PACKAGE__->redis( Redis->new(%redis_server) );
 print Dumper __PACKAGE__->redis;
-#~ $self->redis( Redis->new(%redis_server) );
+$self->redis( Redis->new(%redis_server) );
 #~ print Dumper $self->redis;
 
 # This method will run once at server start
@@ -39,29 +38,19 @@ sub startup {
 	my $r = $self->routes;
 	# $r->route('/:controller/:action/:id')->to('example#welcome', id => 1);
 	
-	$r->route('/')->to('page#index');
-	$r->route('/index')->to('page#index');
+	$r->get('/')->to('page#index');
+	$r->get('/index')->to('page#index');
+	$r->get('/fuck')->to('page#new_fuck');
+	$r->route('/echo/(.word)')->to('page#echo');
 
 	# Normal route to controller
-	$r->route('/welcome')->to('example#welcome');
+	#~ $r->route('/welcome/(.word)')->to('example#welcome');
 	
-	# User related page
-	my $r_user = $r->route('/user')->to('user#');
-	$r->route('/login')->to('user#login');
-	#~ $r_user->any('/login')->to('#login');
-	$r_user->any('/logout')->to('#logout');
-	$r_user->any('/register')->to('#register');
+	#~ $r->get('/(.who)/fuck(.words)')->to('fuck#who_fuck');
+	$r->get('/(.who)/fuck/(.whom)')->to('fuck#who_fuck_whom');
+	#~ $r->get('/fuck/(.whom)')->to('fuck#fuck_whom');
+	$r->post('/new/fuck')->to('fuck#create');
 	
-	#~ ladder sub {
-		#~ my $user = $self->session('name');
-		#~ if (not &check_user( $user )->{"login"}) {
-			#~ $self->flash(message => 'Please login first!');
-			#~ $self->redirect_to('login');
-		#~ }
-	#~ }
-	
-	$r->route('/user/(.user)/edit')->to('user#edit');
-	$r->route('/user/(.user)')->to('user#info');
 	
 }
 

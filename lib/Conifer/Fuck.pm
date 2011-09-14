@@ -5,10 +5,66 @@ use Time::HiRes 'time', 'gettimeofday';
 use Data::Dumper;
 use Digest::SHA1 qw(sha1_hex sha1_base64);
 use Digest::MD5 qw(md5 md5_hex md5_base64);
+use MIME::Base64;
 
 $|=1;
 
+my %hash_table;
+
 # This action will render a template
+
+sub create {
+	my $self = shift;
+	my ($who, $whom, $fucks) = ($self->param('who'), $self->param('whom'), $self->param('fucks'));
+	
+	my ($id, $hash) = &_key_gen;
+	
+	Conifer->redis->set("fucks:$who:$whom:$id:fucks");
+	$self->redirect_to("/$who/fuck/$whom:$hash");
+}
+
+sub who_fuck_who {
+	# /(.who)/fuck/(.whom)
+	my $self = shift;
+	my $who = $self->param('who') || 'anon';
+	my ($whom, $hash) = split/:/,$self->param('whom');
+	$whom ||= 'anon';
+	
+	my $id = &_key_lookup($hash);
+	
+	my $fucks = Conifer->redis->get("fucks:$who:$whom:$id:fucks");
+	$self->render(who => "$who", whom => "$whom", fucks => "$fucks");
+}
+
+sub comment {
+	my $self = shift;
+	my $hash = shift;
+	my $list = Conifer->redis->get("comments:$id:list");
+}
+
+sub rank {
+	
+}
+
+sub _key_gen {
+	# new id, hash
+	my $counter = Conifer->redis->incr("fucks:counter");
+	my $hash = encode_base64($counter);
+	
+	return($counter, $hash);
+}
+
+sub _key_lookup {
+	# hash -> id
+	my $hash = shift;
+	my $id = decode_base64($hash);
+	$id =~ s/=//g;
+	
+	return $id;
+}
+
+# Old
+
 sub login {
 	# $user_passwd eq md5_base64(sha1_hex($pass))
 	
