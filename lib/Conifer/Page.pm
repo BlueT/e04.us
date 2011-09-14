@@ -3,41 +3,29 @@ use utf8;
 use Mojo::Base 'Mojolicious::Controller';
 use Data::Dumper;
 
-# This action will render a template
+
 sub index {
 	$|=1;
 	my $self = shift;
-	#~ $self->redirect_to('http://'.$self->req->url->base->host);
-	#~ my $user = $self->session('name');
-	#~ $user = &check_user( $user )->{"login"} ? $user : 'Anonymous' ;
 	
-	#~ print Data::Dumper::Dumper(Conifer->redis);
-	#~ my $a = Conifer->redis->set(key => 'value');
-	#~ my $b = Conifer->redis->get("key");
-	#~ print "a: $a$b";
-	
-	#~ print Dumper($self->req->url->base->host);
-	
-	#~ $self->render(user => $self->req->url->host);
 	$self->render(motd => "你今天幹勦了嗎？ / Have you Fuck^H^H^Horked somebody today?");
 	
 }
 
 sub new_fuck {
 	my $self = shift;
-
-	#~ my $word = $self->param('word');
+	my $who = $self->session('who') || '我';
 	
 	my $motd = "A Fuck A Day, keeps the doctor away.";
 	
-	$self->render(motd => "$motd");
+	$self->render(motd => "$motd", who => "$who");
 }
 
 sub echo {
 	my $self = shift;
 
 	my $word = $self->param('word');
-	# Render template "example/welcome.html.ep" with message
+	
 	$self->render(message => "$word");
 }
 

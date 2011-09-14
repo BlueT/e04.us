@@ -38,20 +38,15 @@ sub startup {
 	my $r = $self->routes;
 	# $r->route('/:controller/:action/:id')->to('example#welcome', id => 1);
 	
+	# Pages
 	$r->get('/')->to('page#index');
 	$r->get('/index')->to('page#index');
 	$r->get('/fuck')->to('page#new_fuck');
 	$r->route('/echo/(.word)')->to('page#echo');
-
-	# Normal route to controller
-	#~ $r->route('/welcome/(.word)')->to('example#welcome');
 	
+	# Fucks
 	$r->post('/new/fuck')->to('fuck#create');
-	#~ $r->get('/(.who)/fuck(.words)')->to('fuck#who_fuck');
 	$r->get('/(.who)/fuck/(.whom)')->to('fuck#who_fuck_whom');
-	#~ $r->get('/fuck/(.whom)')->to('fuck#fuck_whom');
-	
-	
 	
 }
 
