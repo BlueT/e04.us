@@ -16,6 +16,7 @@ WriteMakefile(
 	'Redis' => 0,
 	'Time::HiRes' => 0,
 	'MIME::Base64' => 0,
+	'JSON' => 0,
   },
   test         => {TESTS => 't/*.t'}
 );
